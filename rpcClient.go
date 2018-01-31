@@ -23,8 +23,8 @@ type rpcClient struct {
 type rpcRequest struct {
 	Method  string      `json:"method"`
 	Params  interface{} `json:"params"`
-	Id      int64       `json:"id"`
-	JsonRpc string      `json:"jsonrpc"`
+	ID      int64       `json:"id"`
+	JSONRPC string      `json:"jsonrpc"`
 }
 
 // rpcError represents a RCP error
@@ -34,7 +34,7 @@ type rpcRequest struct {
 }*/
 
 type rpcResponse struct {
-	Id     int64           `json:"id"`
+	ID     int64           `json:"id"`
 	Result json.RawMessage `json:"result"`
 	Err    interface{}     `json:"error"`
 }
@@ -82,7 +82,7 @@ func (c *rpcClient) doTimeoutRequest(timer *time.Timer, req *http.Request) (*htt
 
 // call prepare & exec the request
 func (c *rpcClient) call(method string, params interface{}) (rr rpcResponse, err error) {
-	connectTimer := time.NewTimer(RPCCLIENT_TIMEOUT * time.Second)
+	connectTimer := time.NewTimer(DefaultRPCClientTimeout * time.Second)
 	rpcR := rpcRequest{method, params, time.Now().UnixNano(), "1.0"}
 	payloadBuffer := &bytes.Buffer{}
 	jsonEncoder := json.NewEncoder(payloadBuffer)

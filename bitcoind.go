@@ -1,4 +1,4 @@
-// Package Bitcoind is client librari for bitcoind JSON RPC API
+// Package bitcoind is client librari for bitcoind JSON RPC API
 package bitcoind
 
 import (
@@ -9,10 +9,10 @@ import (
 )
 
 const (
-	// VERSION represents bicoind package version
-	VERSION = 0.1
-	// DEFAULT_RPCCLIENT_TIMEOUT represent http timeout for rcp client
-	RPCCLIENT_TIMEOUT = 30
+	// Version represents bicoind package version
+	Version = 0.1
+	// DefaultRPCClientTimeout represent http timeout for rcp client
+	DefaultRPCClientTimeout = 30
 )
 
 // A Bitcoind represents a Bitcoind client
@@ -191,7 +191,6 @@ type getBlockTemplateParams struct {
 	Capabilities []string `json:"capabilities,omitempty"`
 }
 
-// TODO a finir
 // GetBlockTemplate Returns data needed to construct a block to work on.
 // See BIP_0022 for more info on params.
 func (b *Bitcoind) GetBlockTemplate(capabilities []string, mode string) (template string, err error) {
@@ -311,18 +310,18 @@ func (b *Bitcoind) GetRawChangeAddress(account ...string) (rawAddress string, er
 }
 
 // GetRawMempool returns all transaction ids in memory pool
-func (b *Bitcoind) GetRawMempool() (txId []string, err error) {
+func (b *Bitcoind) GetRawMempool() (txID []string, err error) {
 	r, err := b.client.call("getrawmempool", nil)
 	if err = handleError(err, &r); err != nil {
 		return
 	}
-	err = json.Unmarshal(r.Result, &txId)
+	err = json.Unmarshal(r.Result, &txID)
 	return
 }
 
 // GetRawTransaction returns raw transaction representation for given transaction id.
-func (b *Bitcoind) GetRawTransaction(txId string, verbose bool) (rawTx interface{}, err error) {
-	r, err := b.client.call("getrawtransaction", []interface{}{txId, verbose})
+func (b *Bitcoind) GetRawTransaction(txID string, verbose bool) (rawTx interface{}, err error) {
+	r, err := b.client.call("getrawtransaction", []interface{}{txID, verbose})
 	if err = handleError(err, &r); err != nil {
 		return
 	}
@@ -336,7 +335,7 @@ func (b *Bitcoind) GetRawTransaction(txId string, verbose bool) (rawTx interface
 	return
 }
 
-// GetReceivedByAccount Returns the total amount received by addresses with [account] in
+// GetReceivedByAccount returns the total amount received by addresses with [account] in
 // transactions with at least [minconf] confirmations. If [account] is set to all return
 // will include all transactions to all accounts
 func (b *Bitcoind) GetReceivedByAccount(account string, minconf uint32) (amount float64, err error) {
@@ -351,7 +350,7 @@ func (b *Bitcoind) GetReceivedByAccount(account string, minconf uint32) (amount 
 	return
 }
 
-// Returns the amount received by <address> in transactions with at least [minconf] confirmations.
+// GetReceivedByAddress returns the amount received by <address> in transactions with at least [minconf] confirmations.
 // It correctly handles the case where someone has sent to the address in multiple transactions.
 // Keep in mind that addresses are only ever used for receiving transactions. Works only for addresses
 // in the local wallet, external addresses will always show 0.
@@ -394,9 +393,9 @@ func (b *Bitcoind) GetTxOutsetInfo() (txOutSet TransactionOutSet, err error) {
 	return
 }
 
-// GetWork
-// If [data] is not specified, returns formatted hash data to work on
-// If [data] is specified, tries to solve the block and returns true if it was successful.
+// GetWork If [data] is not specified, returns formatted hash data to
+// work on If [data] is specified, tries to solve the block and
+// returns true if it was successful.
 func (b *Bitcoind) GetWork(data ...string) (response interface{}, err error) {
 	if len(data) > 1 {
 		err = errors.New("Bad parameters for GetWork: you can set 0 or 1 parameter data")
@@ -505,10 +504,10 @@ type ReceivedByAddress struct {
 	// number of confirmations of the most recent transaction included
 	Confirmations uint32
 	// Tansactions ID
-	TxIds []string
+	TxIDs []string
 }
 
-// ListReceivedByAccount Returns an slice of AccountRecieved:
+// ListReceivedByAddress returns an slice of AccountRecieved:
 func (b *Bitcoind) ListReceivedByAddress(minConf uint32, includeEmpty bool) (list []ReceivedByAddress, err error) {
 	r, err := b.client.call("listreceivedbyaddress", []interface{}{minConf, includeEmpty})
 	if err = handleError(err, &r); err != nil {
@@ -518,7 +517,7 @@ func (b *Bitcoind) ListReceivedByAddress(minConf uint32, includeEmpty bool) (lis
 	return
 }
 
-// ListSinceBlock
+// ListSinceBlock lists transactions since a blockhash
 func (b *Bitcoind) ListSinceBlock(blockHash string, targetConfirmations uint32) (transaction []Transaction, err error) {
 	r, err := b.client.call("listsinceblock", []interface{}{blockHash, targetConfirmations})
 	if err = handleError(err, &r); err != nil {
@@ -562,7 +561,7 @@ func (b *Bitcoind) ListUnspent(minconf, maxconf uint32) (transactions []UnspentO
 
 // UnspendableOutput represents a unspendable (locked) output
 type UnspendableOutput struct {
-	TxId string `json:"txid"`
+	TxID string `json:"txid"`
 	Vout uint64 `json:"vout"`
 }
 
@@ -609,7 +608,7 @@ func (b *Bitcoind) SendFrom(fromAccount, toAddress string, amount float64, minco
 	return
 }
 
-// SenMany send multiple times
+// SendMany send multiple times
 func (b *Bitcoind) SendMany(fromAccount string, amounts map[string]float64, minconf uint32, comment string) (txID string, err error) {
 	r, err := b.client.call("sendmany", []interface{}{fromAccount, amounts, minconf, comment})
 	if err = handleError(err, &r); err != nil {
@@ -697,7 +696,7 @@ func (b *Bitcoind) Stop() error {
 	return handleError(err, &r)
 }
 
-// Verifymessage Verify a signed message.
+// VerifyMessage verifies a signed message.
 func (b *Bitcoind) VerifyMessage(address, sign, message string) (success bool, err error) {
 	r, err := b.client.call("verifymessage", []interface{}{address, sign, message})
 	if err = handleError(err, &r); err != nil {
@@ -736,12 +735,13 @@ func (b *Bitcoind) WalletLock() error {
 	return handleError(err, &r)
 }
 
-// walletPassphrase stores the wallet decryption key in memory for <timeout> seconds.
+// WalletPassphrase stores the wallet decryption key in memory for <timeout> seconds.
 func (b *Bitcoind) WalletPassphrase(passPhrase string, timeout uint64) error {
 	r, err := b.client.call("walletpassphrase", []interface{}{passPhrase, timeout})
 	return handleError(err, &r)
 }
 
+// WalletPassphraseChange changes the wallet passphrase
 func (b *Bitcoind) WalletPassphraseChange(oldPassphrase, newPassprhase string) error {
 	r, err := b.client.call("walletpassphrasechange", []interface{}{oldPassphrase, newPassprhase})
 	return handleError(err, &r)

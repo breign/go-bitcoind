@@ -283,6 +283,16 @@ func (b *Bitcoind) GetNewAddress(account ...string) (addr string, err error) {
 	return
 }
 
+// AddWitnessAddress return a new segwit address for the regular address [address].
+func (b *Bitcoind) AddWitnessAddress(address string) (addr string, err error) {
+	r, err := b.client.call("addwitnessaddress", address)
+	if err = handleError(err, &r); err != nil {
+		return
+	}
+	err = json.Unmarshal(r.Result, &addr)
+	return
+}
+
 // GetPeerInfo returns data about each connected node
 func (b *Bitcoind) GetPeerInfo() (peerInfo []Peer, err error) {
 	r, err := b.client.call("getpeerinfo", nil)

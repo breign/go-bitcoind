@@ -285,7 +285,7 @@ func (b *Bitcoind) GetNewAddress(account ...string) (addr string, err error) {
 
 // AddWitnessAddress return a new segwit address for the regular address [address].
 func (b *Bitcoind) AddWitnessAddress(address string) (addr string, err error) {
-	r, err := b.client.call("addwitnessaddress", address)
+	r, err := b.client.call("addwitnessaddress", []string{address})
 	if err = handleError(err, &r); err != nil {
 		return
 	}

@@ -268,8 +268,8 @@ func (b *Bitcoind) GetMiningInfo() (miningInfo MiningInfo, err error) {
 	return
 }
 
-// GetNewAddress return a new address for account [account].
-func (b *Bitcoind) GetNewAddress(account ...string) (addr string, err error) {
+// GetNewLegacyAddress return a new legacy address for account [account].
+func (b *Bitcoind) GetNewLegacyAddress(account ...string) (addr string, err error) {
 	// 0 or 1 account
 	if len(account) > 1 {
 		err = errors.New("Bad parameters for GetNewAddress: you can set 0 or 1 account")
@@ -283,9 +283,31 @@ func (b *Bitcoind) GetNewAddress(account ...string) (addr string, err error) {
 	return
 }
 
-// AddWitnessAddress return a new segwit address for the regular address [address].
-func (b *Bitcoind) AddWitnessAddress(address string) (addr string, err error) {
-	r, err := b.client.call("addwitnessaddress", []string{address})
+// GetNewAddress return a new address for account [account].
+func (b *Bitcoind) GetNewAddress(account ...string) (addr string, err error) {
+	// 0 or 1 account
+	if len(account) > 1 {
+		err = errors.New("Bad parameters for GetNewAddress: you can set 0 or 1 account")
+		return
+	}
+	account = append(account, "p2sh-segwit")
+	r, err := b.client.call("getnewaddress", account)
+	if err = handleError(err, &r); err != nil {
+		return
+	}
+	err = json.Unmarshal(r.Result, &addr)
+	return
+}
+
+// GetNewBech32Address return a new bech32 address for account [account].
+func (b *Bitcoind) GetNewBech32Address(account ...string) (addr string, err error) {
+	// 0 or 1 account
+	if len(account) > 1 {
+		err = errors.New("Bad parameters for GetNewAddress: you can set 0 or 1 account")
+		return
+	}
+	account = append(account, "bech32")
+	r, err := b.client.call("getnewaddress", account)
 	if err = handleError(err, &r); err != nil {
 		return
 	}

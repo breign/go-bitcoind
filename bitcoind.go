@@ -268,10 +268,10 @@ func (b *Bitcoind) GetMiningInfo() (miningInfo MiningInfo, err error) {
 	return
 }
 
-// GetNewLegacyAddress return a new legacy address for account [account].
-func (b *Bitcoind) GetNewLegacyAddress(account ...string) (addr string, err error) {
+// GetNewAddress return a new address for account [account].
+func (b *Bitcoind) GetNewAddress(account ...string) (addr string, err error) {
 	// 0 or 1 account
-	if len(account) > 1 {
+	if len(account) > 2 {
 		err = errors.New("Bad parameters for GetNewAddress: you can set 0 or 1 account")
 		return
 	}
@@ -283,12 +283,34 @@ func (b *Bitcoind) GetNewLegacyAddress(account ...string) (addr string, err erro
 	return
 }
 
-// GetNewAddress return a new address for account [account].
-func (b *Bitcoind) GetNewAddress(account ...string) (addr string, err error) {
+// GetNewLegacyAddress return a new legacy address for account [account].
+func (b *Bitcoind) GetNewLegacyAddress(account ...string) (addr string, err error) {
 	// 0 or 1 account
 	if len(account) > 1 {
 		err = errors.New("Bad parameters for GetNewAddress: you can set 0 or 1 account")
 		return
+	}
+	if len(account) == 0 {
+		account = []string{""}
+	}
+	account = append(account, "legacy")
+	r, err := b.client.call("getnewaddress", account)
+	if err = handleError(err, &r); err != nil {
+		return
+	}
+	err = json.Unmarshal(r.Result, &addr)
+	return
+}
+
+// GetNewAddress return a new address for account [account].
+func (b *Bitcoind) GetNewP2SHAddress(account ...string) (addr string, err error) {
+	// 0 or 1 account
+	if len(account) > 1 {
+		err = errors.New("Bad parameters for GetNewAddress: you can set 0 or 1 account")
+		return
+	}
+	if len(account) == 0 {
+		account = []string{""}
 	}
 	account = append(account, "p2sh-segwit")
 	r, err := b.client.call("getnewaddress", account)
@@ -305,6 +327,9 @@ func (b *Bitcoind) GetNewBech32Address(account ...string) (addr string, err erro
 	if len(account) > 1 {
 		err = errors.New("Bad parameters for GetNewAddress: you can set 0 or 1 account")
 		return
+	}
+	if len(account) == 0 {
+		account = []string{""}
 	}
 	account = append(account, "bech32")
 	r, err := b.client.call("getnewaddress", account)

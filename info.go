@@ -50,3 +50,22 @@ type Info struct {
 	//  Any error messages
 	Errors string `json:"errors"`
 }
+
+// WalletInfo represents a response to getwalletinfo
+type WalletInfo struct {
+	Name                  string  `json:"walletname"`
+	Version               int64   `json:"walletversion"`
+	Balance               float64 `json:"balance"`
+	UnconfirmedBalance    float64 `json:"unconfirmed_balance"`
+	ImmatureBalance       float64 `json:"immature_balance"`
+	TxCount               int64   `json:"txcount"`
+	KeypoolOldest         int64   `json:"keypoololdest"`
+	KeypoolSize           int64   `json:"keypoolsize"`
+	KeypoolSizeHDInternal int64   `json:"keypoolsize_hd_internal"`
+	UnlockedUntil         int64   `json:"unlocked_until"`
+	PayTxFee              float64 `json:"paytxfee"`
+	HDMasterKeyID         string  `json:"hdmasterkeyid"`
+
+	//  Any error messages
+	Errors string `json:"errors"`
+}

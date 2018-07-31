@@ -258,6 +258,16 @@ func (b *Bitcoind) GetInfo() (i Info, err error) {
 	return
 }
 
+// GetWalletInfo return result of "getinfo" command (Amazing !)
+func (b *Bitcoind) GetWalletInfo() (i WalletInfo, err error) {
+	r, err := b.client.call("getwalletinfo", nil)
+	if err = handleError(err, &r); err != nil {
+		return
+	}
+	err = json.Unmarshal(r.Result, &i)
+	return
+}
+
 // GetMiningInfo returns an object containing mining-related information
 func (b *Bitcoind) GetMiningInfo() (miningInfo MiningInfo, err error) {
 	r, err := b.client.call("getmininginfo", nil)

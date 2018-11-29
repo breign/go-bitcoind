@@ -312,7 +312,7 @@ func (b *Bitcoind) GetNewLegacyAddress(account ...string) (addr string, err erro
 	return
 }
 
-// GetNewAddress return a new address for account [account].
+// GetNewP2SHAddress return a new address for account [account].
 func (b *Bitcoind) GetNewP2SHAddress(account ...string) (addr string, err error) {
 	// 0 or 1 account
 	if len(account) > 1 {
@@ -728,6 +728,28 @@ func (b *Bitcoind) SetTxFee(amount float64) error {
 // SignRawTransaction signs a proveded raw transaction
 func (b *Bitcoind) SignRawTransaction(rawtx string) (signedtx string, err error) {
 	r, err := b.client.call("signrawtransaction", []string{rawtx})
+	if err = handleError(err, &r); err != nil {
+		return
+	}
+
+	resp := &SignRawTransactionResponse{}
+	err = json.Unmarshal(r.Result, resp)
+	if err != nil {
+		return
+	}
+
+	if resp.HasError() {
+		err = resp
+		return
+	}
+
+	signedtx = resp.Hex
+	return
+}
+
+// SignRawTransactionWithWallet signs a proveded raw transaction
+func (b *Bitcoind) SignRawTransactionWithWallet(rawtx string) (signedtx string, err error) {
+	r, err := b.client.call("signrawtransactionwithwallet", []string{rawtx})
 	if err = handleError(err, &r); err != nil {
 		return
 	}

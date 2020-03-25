@@ -126,7 +126,7 @@ func (c *rpcClient) call(method string, params interface{}) (rr rpcResponse, err
 		var ok bool
 		err, ok = ErrMap[rr.Err.Code]
 		if ok {
-			err = fmt.Errorf("%w: %s", err, rr.Err.Message)
+			err = fmt.Errorf("[%d] %w: %s", rr.Err.Code, err, rr.Err.Message)
 			return
 		}
 		err = fmt.Errorf("unknown error: code=%v, message=%s", rr.Err.Code, rr.Err.Message)

@@ -614,11 +614,21 @@ func (b *Bitcoind) ListTransactions(account string, count, from uint32) (transac
 }
 
 // ListUnspent returns array of unspent transaction inputs in the wallet.
-func (b *Bitcoind) ListUnspent(minconf, maxconf uint32) (transactions []UnspentOutput, err error) {
-	if maxconf > 999999 {
-		maxconf = 999999
+func (b *Bitcoind) ListUnspent(minconf, maxconf int64) (transactions []UnspentOutput, err error) {
+	if minconf < 0 {
+		minconf = 0
 	}
-	r, err := b.client.call("listunspent", []interface{}{minconf, maxconf})
+
+	args := []interface{}{minconf}
+
+	if maxconf > 0 {
+		if maxconf < minconf {
+			maxconf = minconf
+		}
+		args = append(args, maxconf)
+	}
+
+	r, err := b.client.call("listunspent", args)
 	if err = handleError(err, &r); err != nil {
 		return
 	}

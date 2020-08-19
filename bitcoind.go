@@ -165,6 +165,16 @@ func (b *Bitcoind) GetBlock(blockHash string) (block Block, err error) {
 	return
 }
 
+// GetBlockByHeight returns information about the block with the given height.
+func (b *Bitcoind) GetBlockByHeight(blockHeight string) (block Block, err error) {
+	r, err := b.client.call("getblockbyheight", []string{blockHeight})
+	if err = handleError(err, &r); err != nil {
+		return
+	}
+	err = json.Unmarshal(r.Result, &block)
+	return
+}
+
 // GetBlockCount returns the number of blocks in the longest block chain.
 func (b *Bitcoind) GetBlockCount() (count uint64, err error) {
 	r, err := b.client.call("getblockcount", nil)

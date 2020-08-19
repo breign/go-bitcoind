@@ -1,4 +1,4 @@
-module github.com/dangersalad/go-bitcoind
+module github.com/breign/go-bitcoind
 
 go 1.13
 
